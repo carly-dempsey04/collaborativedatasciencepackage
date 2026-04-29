@@ -1,0 +1,432 @@
+---
+title: "Coral Reef Cover Vignette"
+output: rmarkdown::html_vignette
+---
+```{r setup}
+library(collaborativedatasciencepackage, quietly = TRUE)
+```
+
+```{r library, echo = FALSE}
+knitr::opts_chunk$set(
+  warning = FALSE,
+  message = FALSE
+)
+# load in required packages
+library(tidyr)
+library(vegan)
+library(BiodiversityR)
+library(modelr)
+library(tidybayes)
+library(ggplot2)
+library(tibble)
+library(patchwork)
+library(ggrepel)
+library(dplyr)
+library(grid)
+```
+
+# Collaborative Data Science Project
+
+## Research Question
+
+##### *How does benthic cover vary across three reef zones of the Belize Barrier Reef?*
+
+## Visualization of Data
+
+#### 1) Metadata
+
+This dataset contains the metadata for quadrat photos taken every 5m along 50m transects. Six transects were conducted at each of the three study sites in Belize: lagoon (whale shoal), fore reef, and back reef. The dataset contains the **image name**, **site of collection**, **date of collection**, **transect number**, and **quadrat number**.
+
+```{r}
+data("metadata", package = "collaborativedatasciencepackage")
+head(metadata)
+```
+
+#### 2) Percent Cover Dataset
+
+This dataset consists of percent cover data for each quadrat photo. Percent cover was calculated using CoralNet, a software that automates the analysis of coral reef benthic images. Essentially, CoralNet generates 25 random points over each image, identifies/labels the points, and then calculates percent cover from that data. The dataset contains the **image ID**, **image name** (same as above), **annotation status** (whether the image has been labeled), **number of collection points**, and various columns corresponding to **different benthic categories** such as hard coral species, soft coral species, macroalgal species, etc. See the [Glossary](#glossary) for a key to each category.
+
+```{r}
+data("per.cover.data", package = "collaborativedatasciencepackage")
+head(per.cover.data)
+```
+
+## Data Wrangling
+
+Combine the metadata with the percent cover data.
+
+
+```{r data-join}
+benthic.data <- metadata %>%
+  left_join(per.cover.data, by = "Image.name")
+```
+
+Now, we have to calculate the average percent cover for each category at each transect. To do this, we first must `gather()` our data so that we have a column for the categories and a column for the percent cover of each category. At this time, we will also add a new column with the names of the reef zones: lagoon, forereef, backreef.
+
+```{r benthic-data}
+benthic.data <- benthic.data |>
+  gather(key = category, value = percent_cover, 9:69) |> # gather all category columns into one column, "category"
+  mutate(Habitat = case_when(Site == "BZE_CBC_BACKREEF" ~ "Backreef",
+                            Site == "BZE_CBC_FOREREEF" ~ "Forereef",
+                            Site == "BZE_whaleShoal" ~ "Lagoon")) # add a column with habitat types
+```
+
+Next, we can group by Habitat, Transect, and Category to calculate the average percent cover for each category at each transect across the ten quadrats.
+
+```{r category-cover}
+category.cover <- benthic.data |>
+  group_by(Habitat, Transect, category) |>
+  summarize(transect_cover = sum(percent_cover) / 1000, .groups = "drop") # divide by 1000 because there are 10 quadrats in a single transect: 100% * 10
+head(category.cover)
+```
+
+This dataset now shows the proportion of each category found in each transect. However, we also want to classify the categories into broad functional groups for downstream analyses.
+
+```{r functional-group-classify}
+# classify functional groups
+func.group.cover <- category.cover |>
+  mutate(func_group = case_match(
+    category,
+    
+    # macroalgae
+    c("Brown_UFM", "Green_UFM", "Red_UFM", "Dictyota", "Halimeda", "Ulva", "Lobophora", "Sargassum", "Mac_matrix",
+      "Brown_Enc", "Red_Enc") ~ "Macroalgae",
+    
+    # corals
+    c("AcrCerv", "AcrPalm", "AgAga", "AgTen", "AgUnd", "BL_OrbFav", "BORB", "CoNat", "DiplLab", "FaviaFrag", "MontaCav", "OrbAnn", "OrbFav", "OrbFrank", "PorAstr", "Por_branch", "PorPor", "PseuCliv", "PseuStrig", "Siderastr", "SidSid") ~ "Coral",
+    
+    # gorgonians
+    c("Gorg_Fan", "Gorg_Plume", "Gorg_Whip", "GORG-BRI") ~ "Gorgonian",
+    
+    # EAM
+    c("EAM_HR", "EAM_LR", "EAM_RBL") ~ "EAM",
+    
+    # Cyanobacteria
+    c("Cyano_HR", 
+      "Cyano_LR", "Cyano_RBL", "Cyano_Sand") ~ "Cyanobacteria",
+    
+    # crustose coralline algae (CCA)
+    c("CCA_LR", "CCA_HR", "CCA_RBL") ~ "CCA",
+    
+    # sponges
+    c("Spong_Crus", "Spong_Erec", "Spong_Glo") ~ "Sponge",
+    
+    # seagrass
+    c("SyrFil", "ThalTes") ~ "Seagrass",
+    
+    # all other categories
+    .default = "Other"))
+
+
+# calculate percent cover for each functional group in each transect
+func.group.cover <- func.group.cover |>
+  select(-category) |>
+  group_by(Habitat, Transect, func_group) |>
+  summarise(transect_cover = sum(transect_cover), .groups = "drop") # use `sum()` because different categories were grouped
+head(func.group.cover)
+```
+
+After calculating the percent cover of each functional group for each transect, we need to format the data into "wide" format using `spread()` for downstream analyses. Thus, each row is an observation and each column is a unique variable.
+
+```{r benthic-wide}
+benthic.wide <- func.group.cover |>
+  spread(key = func_group, value = transect_cover, fill = 0) # set missing values as "0"
+head(benthic.wide)
+```
+
+## Principal Coordinate Analysis
+
+Principal Coordinate Analysis (PCoA) is a technique used to visualize multidimensional data. Since we have benthic cover data (functional group abundances from 0-1), we can use the Manhattan distance measure to calculate pairwise distances between each transect in our dataset. This will, ultimately, form a distance matrix that we can then analyze using PCoA to determine how similar or different the benthic cover of each transect is to one another.\
+*Note: The Bray-Curtis distance measure could also be used for abundance data, but here we chose the Manhattan distance to analyze the absolute differences in percent cover, rather than relative metrics.*
+
+First, we need to split the metadata (containing the information of the sites and transects) and the community-matrix (containing the percent cover of each functional group on each transect) into two separate datasets before performing a PCoA.
+
+```{r creating-datasets}
+# create metadata
+benthic.meta <- benthic.wide |>
+  select(Habitat, Transect)
+
+# create percent cover dataset
+benthic.base <- benthic.wide |>
+  ungroup() |>
+  select(-Habitat, -Transect)
+```
+
+Next, we need to create our distance matrix. This can be done using the `vegdist()` function which calculates pairwise dissimilarities between pairs of transects. Essentially, this will yield the absolute difference in percent cover across all functional groups — ecologically, it will represent the “total amount of compositional change between two transects.”
+
+```{r benthic-distance}
+# distance matrix using the Manhattan distance measure
+benthic.dist <- vegdist(benthic.base, method = "manhattan")
+```
+
+The `wcmdscale()` function performs a Principal Coordinate Analysis. It takes the distance matrix and finds coordinates in a Euclidean space that best preserve those distances. `k = 2` → projects into 2 dimensions (for plotting). `eig = TRUE` → returns eigenvalues (variance explained per axis). Unlike Principal Component Analysis (PCA) that works directly on Euclidean distances, PCoA accepts any distance matrix (e.g., Manhattan, Bray-Curtis).
+
+```{r benthicpcoanoscores}
+benthic.pcoa.noscores <- wcmdscale(benthic.dist, k = 2, eig = TRUE)
+summary(benthic.pcoa.noscores)
+```
+
+Now, we need to extract the scores, or the coordinates, for two different components of the ordination: 1) the species scores: scores for the functional groups (columns in the distance matrix) and 2) the site scores: scores for the transects (rows in the distance matrix).
+
+#### Species scores
+
+```{r benthic-pcoa}
+benthic.pcoa <- BiodiversityR::add.spec.scores(benthic.pcoa.noscores, benthic.base, Rscale = TRUE, scaling = 1, multi = 1)
+
+# view the projected species scores
+benthic.pcoa$cproj
+```
+
+Then, we can compile this information into a tidy table by extracting the species loadings as a dataset. These loadings will be used to map the species onto the PCoA to visualize species-site relationships.
+
+```{r benthic-species-scores}
+benthic.species.scores <- as.data.frame(benthic.pcoa$cproj) |>
+  mutate(species = rownames(.)) 
+head(benthic.species.scores) 
+```
+
+#### Site scores
+
+```{r benthic-site-scores}
+benthic.site.scores <- as_tibble(benthic.pcoa$points, .name_repair = "minimal") |> # these are the coordinates for each transect on the PCoA
+  rename(Dim1 = 1, Dim2 = 2) |> 
+  bind_cols(benthic.meta) # add in the metadata
+head(benthic.site.scores)
+```
+
+#### Convex hulls
+
+One final thing we have to do before plotting is extract the information to plot the convex hulls of each site. Convex hulls enclose the points from each habitat into a polygon.
+
+```{r convex-hulls}
+benthic.hulls <- benthic.site.scores |>
+  group_by(Habitat) |>
+  dplyr::slice(chull(Dim1, Dim2))
+head(benthic.hulls)
+```
+
+#### Plotting the PCoA
+
+Now we have everything to plot our PCoA: species scores, site scores, and convex hulls.
+
+```{r benthic-plot, eval = FALSE}
+benthic_plot(benthic.species.scores, benthic.site.scores, benthic.hulls)
+benthic_plot
+```
+
+**RESULTS:** The lack of overlap between convex hulls indicates that each reef habitat has a distinct benthic community. The species loadings show that the lagoon has a greater abundance of macroalgae, while the backreef has higher coral abundance.
+
+## Generalized Linear Model
+
+Now, we are interested in understanding the potential factors that drive coral abundance such as macroalgae cover or reef habitat.
+
+#### Model preliminaries
+
+Let's first look at plots of coral cover vs. macroalgae cover and coral cover by habitat.
+
+```{r cm-data}
+# isolate model variables and convert character variables to factors
+cm.data <- benthic.wide |> 
+  ungroup() |>
+  select(Habitat, Transect, Coral, Macroalgae) |>
+  mutate(Habitat = as.factor(Habitat),
+         Transect = as.factor(Transect))
+
+# plot coral vs. macroalgae
+coral.algae.plot <- cm.data |>
+  ggplot(aes(x = Macroalgae, y = Coral)) +
+  geom_point(color = "#9970AB", size = 4) +
+  theme_bw() +
+  xlab("Macroalgae cover (%)") +
+  ylab("Coral cover (%)")
+
+# plot coral cover by habitat
+coral.habitat.plot <- cm.data |>
+  ggplot(aes(x = Habitat, y = Coral, fill = Habitat)) +
+  geom_boxplot(alpha = 0.7) + 
+  geom_jitter(aes(fill = Habitat), size = 3, shape = 21) +
+  scale_color_manual(values = c("#FB9A29", "#CC6677", "#9970AB")) +
+  scale_fill_manual(values = c("#FB9A29", "#CC6677", "#9970AB")) +
+  ylab("Coral cover (%)") +
+  theme_bw() +
+  theme(legend.position = "none")
+
+coral.algae.plot + coral.habitat.plot
+```
+
+As we can see from these two plots, there appears to be trends in the abundance of coral with macroalgae and reef habitat. So, we can use modeling to determine the significance/size of those trends.
+
+To test whether we will need to use a general linear model or a generalized linear model, we must check the normality of coral abundance, our response variable.
+
+```{r benthic-wide-two}
+benthic.wide |>
+  ggplot(aes(x= Coral)) +
+  geom_histogram() +
+  theme_classic() +
+  xlab("Coral Abundance") +
+  ylab("Count")
+```
+
+From the histogram, you can see that coral abundance is **not** normally distributed, so we must model our data using a different distribution. The beta distribution is appropriate for this as our abundance data is continuous from 0-1.
+
+#### Running the model
+
+We will perform a Bayesian Generalized Linear Model using the package `{brms}`. Our model, in this case, will consist of macroalgae cover and habitat as predictor variables and coral cover as our response variable. We also will need to include transect as a random effect to account for quadrats taken within the same transect. Bayesian modeling was chosen over frequentist modeling to test the probability of the reef habitats being different from one another.
+
+Now we know that we need to run a generalized linear model using the argument `family =  beta.`
+
+```{r model-run, eval = FALSE}
+set.seed(690) # ensure that random sampling yields the same results every time
+
+# run the model
+coral.glm <- brms::brm(
+  Coral ~ Habitat * Macroalgae + (1 | Transect),
+  data = cm.data,
+  family = beta()
+)
+summary(coral.glm)
+```
+
+According to the model, there is no evidence that habitat nor macroalgae significantly drive coral cover (really wide confidence intervals). However, there are slight, non-significant trends that as macroalgae increases, coral cover decreases and as habitat moves inshore towards the lagoon, coral cover decreases as well.
+
+#### Coral \~ Habitat
+
+Let's explore the model predictions for solely the categorical variable, habitat, on coral cover.
+
+```{r habitat-effect, eval = FALSE}
+habitat.effect <- cm.data |>
+  
+  # create a data grid that holds macroalgae fixed at its mean
+  # this allows us to isolate the effects of solely habitat on coral cover
+  data_grid(Habitat = unique(Habitat),  # use all unique levels of 'Habitat'
+            Macroalgae = mean(Macroalgae, na.rm = TRUE)) |>
+  
+  # add predicted coral cover values from the model
+  add_epred_draws(coral.glm, 
+                  regex = T, 
+                  ndraws = 200, # takes 200 posterior draws of coral cover
+                  re_formula = NA) |>  # exclude random effects (i.e., transect)
+  
+  # plot the predicted coral values by each habitat
+  ggplot(aes(x = Habitat, y = .epred, color = Habitat, fill = Habitat)) +
+  stat_histinterval(alpha = 0.8, justification = -0.2) + # plots distribution of predicted values
+  
+  # aesthetics
+  theme_bw() +
+  coord_cartesian(ylim = c(0, 0.3)) +
+  xlab("Habitat") +
+  ylab("Predicted coral cover (%)") +
+  scale_color_manual(values = c("#FB9A29", "#CC6677", "#9970AB"))+
+  scale_fill_manual(values = c("#FB9A29", "#CC6677", "#9970AB"))+
+  theme(plot.margin = unit(c(0,0,0,0), "lines"))
+
+habitat.effect
+```
+
+#### Coral \~ Macroalgae
+
+Now let's look at solely the effects of macroalgae cover on coral cover.
+
+```{r macroagae-effect, eval = FALSE}
+macroalgae.effect <- cm.data |>
+  
+  # create a data grid that holds 100 random values of macroalgae cover across the observed range
+  data_grid(Macroalgae = seq(
+    min(cm.data$Macroalgae, na.rm = TRUE),
+    max(cm.data$Macroalgae, na.rm = TRUE),
+    length.out = 100)) |> 
+  
+  # fix habitat to a single level so we can visualize the marginal effect of macroalgae on coral cover
+  mutate(Habitat = "Backreef") |> 
+  
+  # add predicted coral cover values from the model
+  add_epred_draws(coral.glm, 
+                  regex = T, 
+                  ndraws = 500, # takes 500 posterior draws of coral cover
+                  re_formula = NA) |> # exclude random effects (i.e., transect)
+
+  # plot the predicted coral cover values against macroalgae cover
+  ggplot() +
+  geom_line(aes(x = Macroalgae, y = .epred, group = .draw), 
+            color = "#9970AB",   
+            alpha = 1,
+            linewidth = 0.1) +
+  geom_point(data = cm.data, aes(y = Coral, x = Macroalgae), color = "#9970AB",
+             fill = "#D3C0DD", alpha = 0.9,
+            shape = 21, size = 3)+
+  theme_bw() +
+  coord_cartesian(ylim = c(0, 0.2)) +
+  xlab("Macroalgae cover (%)") +
+  ylab("Predicted coral cover (%)") +
+  theme(plot.margin = unit(c(0,0,0,0), "lines"))
+
+macroalgae.effect
+```
+
+## Acknowledgements
+
+This project draws on data generated through research conducted by Juan Pablo Lozano-Peña and Megan Cai Do.
+
+## Glossary {#glossary}
+
+-   *Acropora cervicornis* (AcrCerv)
+-   *Acropora palmata* (AcrPalm)
+-   *Agaricia agaricites* (AgAga)
+-   *Agaricia tenuifolia* (AgTen)
+-   *Agaricia undata* (AgUnd)
+-   ##(BL_OrbFav)##
+-   ##(BORB)##
+-   *Colpophyllia natans* (CoNat)
+-   *Diploria labyrinthiformis* (DiplLab)
+-   *Favia fragum* (FaviaFrag)
+-   *Montastraea cavernosa* (MontaCav)
+-   *Orbicella annularis* (OrbAnn)
+-   *Orbicella faveolata* (OrbFav)
+-   *Orbicella franksi* (OrbFrank)
+-   *Porites astreoides* (PorAstr)
+-   ##(Por_branch)##
+-   *Porites porites* (PorPor)
+-   *Pseudodiploria clivosa* (PseuCliv)
+-   *Pseudodiploria strigosa* (PseuStrig)
+-   ##(Siderastr)##
+-   *Siderastrea siderea* (SidSid)
+-   sea anemones (ANEM)
+-   feather duster worms (Feat_dust)
+-   *Briareum* (GORG-BRI)
+-   sea fans (Gorg_Fan)
+-   sea plumes (Gorg_Plume)
+-   sea whips (Gorg_Whip)
+-   hydra (Hydra)
+-   fire corals (Millepora)
+-   ##(PCAR)##
+-   encrusting sponges (Sponge_Crus)
+-   ##(Sponge_Erec)##
+-   ##(Sponge_Glo)##
+-   ##(Film_Sand)##
+-   sand (Sand)
+-   bare rock (Bare_Rock)
+-   ##(CCA_LR)##
+-   ##(Cyano_HR)##
+-   ##(Cyano_LR)##
+-   ##(Cyano_RBL)##
+-   ##(Cyano_Sand)##
+-   debris (Debris)
+-   ##(ACA)##
+-   brown encrusting algae (Brown_Enc)
+-   brown algae ultra fine matrix (Brown_UFM)
+-   ##(CCA_HR)##
+-   ##(CCA_RBL)##
+-   *Dictyota* sp. (Dictyota)
+-   ##(EAM_HR)##
+-   ##(EAM_LR)##
+-   ##(EAM_RBL)##
+-   green algae ultra fine matrix (Green_UFM)
+-   *Halimeda* sp. (Halimeda)
+-   *Lobophora* sp. (Lobophora)
+-   macroalgae matrix (Mac_matrix)
+-   red encrusting algae (Red_Enc)
+-   red algae ultra fine matrix (Red_UFM)
+-   *Sargassum* sp. (Sargassum)
+-   *Ulva* sp. (Ulva)
+-   *Syringodium filiforme* (SyrFil)
+-   *Thalassia testudinum* (ThalTes)

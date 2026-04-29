@@ -1,0 +1,42 @@
+Package: collaborativedatasciencepackage
+Title: Analysis Tools for Coral Reef Benthic Cover Data
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Juan Pablo", "Lozano Pena",
+           email = "juanp.lozanop@austin.utexas.edu",
+           role = "aut"),
+    person("Megan", "Do",
+           email = "mcdo@utexas.edu",
+           role = "aut"),
+    person("Carly", "Dempsey",
+           email = "cd39227@my.utexas.edu",
+           role = c("aut", "cre"))
+    )
+Description: Description: Provides data, analysis workflows, and visualization tools
+    for examining benthic community structure in coral reef ecosystems.
+    Supports functional group aggregation, ordination using Principal
+    Coordinate Analysis, and Bayesian generalized linear modelling
+    to compare reef habitats and coral--macroalgae relationships.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+    R (>= 4.1.0)
+Imports:
+    BiodiversityR,
+    brms,
+    ggdist,
+    ggplot2,
+    ggrepel,
+    modelr,
+    patchwork,
+    tibble,
+    tidybayes,
+    vegan
+Suggests:
+    knitr,
+    rmarkdown,
+    tidyverse
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.3
+LazyData: true

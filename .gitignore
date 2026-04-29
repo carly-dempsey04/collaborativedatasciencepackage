@@ -1,0 +1,9 @@
+.Rproj.user
+inst/doc
+**/.quarto/
+.Rhistory
+.RData
+.httr-oauth
+.DS_Store
+.quarto
+collaborativedatasciencepackage.Rcheck
