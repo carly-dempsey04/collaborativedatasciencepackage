@@ -360,67 +360,67 @@ This project draws on data generated through research conducted by Juan Pablo Lo
 
 ## Glossary {#glossary}
 
--   *Acropora cervicornis* (AcrCerv)
--   *Acropora palmata* (AcrPalm)
--   *Agaricia agaricites* (AgAga)
--   *Agaricia tenuifolia* (AgTen)
--   *Agaricia undata* (AgUnd)
--   ##(BL_OrbFav)##
--   ##(BORB)##
--   *Colpophyllia natans* (CoNat)
--   *Diploria labyrinthiformis* (DiplLab)
--   *Favia fragum* (FaviaFrag)
--   *Montastraea cavernosa* (MontaCav)
--   *Orbicella annularis* (OrbAnn)
--   *Orbicella faveolata* (OrbFav)
--   *Orbicella franksi* (OrbFrank)
--   *Porites astreoides* (PorAstr)
--   ##(Por_branch)##
--   *Porites porites* (PorPor)
--   *Pseudodiploria clivosa* (PseuCliv)
--   *Pseudodiploria strigosa* (PseuStrig)
--   ##(Siderastr)##
--   *Siderastrea siderea* (SidSid)
--   sea anemones (ANEM)
--   feather duster worms (Feat_dust)
--   *Briareum* (GORG-BRI)
--   sea fans (Gorg_Fan)
--   sea plumes (Gorg_Plume)
--   sea whips (Gorg_Whip)
--   hydra (Hydra)
--   fire corals (Millepora)
--   ##(PCAR)##
--   encrusting sponges (Sponge_Crus)
--   ##(Sponge_Erec)##
--   ##(Sponge_Glo)##
--   ##(Film_Sand)##
--   sand (Sand)
--   bare rock (Bare_Rock)
--   ##(CCA_LR)##
--   ##(Cyano_HR)##
--   ##(Cyano_LR)##
--   ##(Cyano_RBL)##
--   ##(Cyano_Sand)##
--   debris (Debris)
--   ##(ACA)##
--   brown encrusting algae (Brown_Enc)
--   brown algae ultra fine matrix (Brown_UFM)
--   ##(CCA_HR)##
--   ##(CCA_RBL)##
--   *Dictyota* sp. (Dictyota)
--   ##(EAM_HR)##
--   ##(EAM_LR)##
--   ##(EAM_RBL)##
--   green algae ultra fine matrix (Green_UFM)
--   *Halimeda* sp. (Halimeda)
--   *Lobophora* sp. (Lobophora)
--   macroalgae matrix (Mac_matrix)
--   red encrusting algae (Red_Enc)
--   red algae ultra fine matrix (Red_UFM)
--   *Sargassum* sp. (Sargassum)
--   *Ulva* sp. (Ulva)
--   *Syringodium filiforme* (SyrFil)
--   *Thalassia testudinum* (ThalTes)
+* *Acropora cervicornis* (AcrCerv)
+* *Acropora palmata* (AcrPalm)
+* *Agaricia agaricites* (AgAga)
+* *Agaricia tenuifolia* (AgTen)
+* *Agaricia undata* (AgUnd)
+* *Bleached Orbicella faveolata* (BL_OrbFav)
+* *Bleached Orbicella* (BORB)
+* *Colpophyllia natans* (CoNat)
+* *Diploria labyrinthiformis* (DiplLab)
+* *Favia fragum* (FaviaFrag)
+* *Montastraea cavernosa* (MontaCav)
+* *Orbicella annularis* (OrbAnn)
+* *Orbicella faveolata* (OrbFav)
+* *Orbicella franksi* (OrbFrank)
+* *Porites astreoides* (PorAstr)
+* *Branching Porites* (Por_branch)
+* *Porites porites* (PorPor)
+* *Pseudodiploria clivosa* (PseuCliv)
+* *Pseudodiploria strigosa* (PseuStrig)
+* *Siderastrea* (Siderastr)
+* *Siderastrea siderea* (SidSid)
+* *sea anemones* (ANEM)
+* *feather duster worms* (Feat_dust)
+* *Briareum* (GORG-BRI)
+* sea fans* (Gorg_Fan)
+* sea plumes* (Gorg_Plume)
+* sea whips* (Gorg_Whip)
+* hydra* (Hydra)
+* fire corals (Millepora)
+* *Palythoa caribaeoum (PCAR)
+* encrusting sponges (Sponge_Crus)
+* Erect soponge* (Sponge_Erec)
+* Globolous sponge* (Sponge_Glo)
+* Film on sand*(Film_Sand)
+* sand (Sand)
+* bare rock (Bare_Rock)
+* Crustose Coraline Algae on Low Relief (CCA_LR)
+* Cyanobacteria on High Relief (Cyano_HR)
+* Cyanobacteria on Low Relief (Cyano_LR)
+* Cyanobacteria on Rubble(Cyano_RBL)
+* Cyanobacteria film on sand (Cyano_Sand)
+* debris (Debris)
+* Articulated Coraline Algae (ACA)
+* brown encrusting algae (Brown_Enc)
+* brown algae ultra fine matrix (Brown_UFM)
+* Crustose Coraline Algae on Hogh Relief (CCA_HR)
+* Crustose Coraline Algae on Rubble (CCA_RBL)
+* *Dictyota* sp. (Dictyota)
+* Epilithic Algae Matrix on High Relief (EAM_HR)
+* Epilithic Algae Matrix on Low Relief (EAM_LR)
+* Epilithic Algae Matrix on Rubble (EAM_RBL)
+* green algae ultra fine matrix (Green_UFM)
+* *Halimeda* sp. (Halimeda)
+* *Lobophora* sp. (Lobophora)
+* macroalgae matrix (Mac_matrix)
+* red encrusting algae (Red_Enc)
+* red algae ultra fine matrix (Red_UFM)
+* *Sargassum* sp. (Sargassum)
+* *Ulva* sp. (Ulva)
+* *Syringodium filiforme* (SyrFil)
+* *Thalassia testudinum* (ThalTes)
 
 ## Supplementary Material
 ```{r Supplemental, eval = FALSE}
