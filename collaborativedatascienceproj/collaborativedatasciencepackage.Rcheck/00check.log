@@ -1,0 +1,94 @@
+* using log directory 'D:/collaborativedatascienceproj/collaborativedatasciencepackage.Rcheck'
+* using R version 4.5.3 (2026-03-11 ucrt)
+* using platform: x86_64-w64-mingw32
+* R was compiled by
+    gcc.exe (GCC) 14.3.0
+    GNU Fortran (GCC) 14.3.0
+* running under: Windows 11 x64 (build 26100)
+* using session charset: UTF-8
+* checking for file 'collaborativedatasciencepackage/DESCRIPTION' ... OK
+* this is package 'collaborativedatasciencepackage' version '0.0.0.9000'
+* package encoding: UTF-8
+* checking package namespace information ... OK
+* checking package dependencies ... OK
+* checking if this is a source package ... OK
+* checking if there is a namespace ... OK
+* checking for executable files ... OK
+* checking for hidden files and directories ... OK
+* checking for portable file names ... OK
+* checking whether package 'collaborativedatasciencepackage' can be installed ... OK
+* checking installed package size ... INFO
+  installed size is 24.0Mb
+  sub-directories of 1Mb or more:
+    Meta   7.0Mb
+    R      3.0Mb
+    data   3.0Mb
+    help   5.0Mb
+    html   2.0Mb
+* checking package directory ... OK
+* checking DESCRIPTION meta-information ... OK
+* checking top-level files ... OK
+* checking for left-over files ... OK
+* checking index information ... OK
+* checking package subdirectories ... OK
+* checking code files for non-ASCII characters ... OK
+* checking R files for syntax errors ... OK
+* checking whether the package can be loaded ... OK
+* checking whether the package can be loaded with stated dependencies ... OK
+* checking whether the package can be unloaded cleanly ... OK
+* checking whether the namespace can be loaded with stated dependencies ... OK
+* checking whether the namespace can be unloaded cleanly ... OK
+* checking loading without being on the library search path ... OK
+* checking dependencies in R code ... NOTE
+Namespaces in Imports field not imported from:
+  'BiodiversityR' 'brms' 'dplyr' 'patchwork' 'tibble' 'vegan'
+  All declared Imports should be used.
+* checking S3 generic/method consistency ... OK
+* checking replacement functions ... OK
+* checking foreign function calls ... OK
+* checking R code for possible problems ... NOTE
+benthic_plot: no visible binding for global variable 'Dim1'
+benthic_plot: no visible binding for global variable 'Dim2'
+benthic_plot: no visible binding for global variable 'Habitat'
+benthic_plot: no visible binding for global variable 'species'
+habitat_effect: no visible binding for global variable 'Habitat'
+habitat_effect: no visible binding for global variable '.epred'
+Undefined global functions or variables:
+  .epred Dim1 Dim2 Habitat species
+* checking Rd files ... OK
+* checking Rd metadata ... OK
+* checking Rd cross-references ... OK
+* checking for missing documentation entries ... WARNING
+Undocumented code objects:
+  'metadata' 'per.cover.data'
+Undocumented data sets:
+  'metadata' 'per.cover.data'
+All user-level objects in a package should have documentation entries.
+See chapter 'Writing R documentation files' in the 'Writing R
+Extensions' manual.
+* checking for code/documentation mismatches ... OK
+* checking Rd \usage sections ... OK
+* checking Rd contents ... OK
+* checking for unstated dependencies in examples ... OK
+* checking contents of 'data' directory ... OK
+* checking data for non-ASCII characters ... OK
+* checking LazyData ... OK
+* checking data for ASCII and uncompressed saves ... OK
+* checking files in 'vignettes' ... WARNING
+Files in the 'vignettes' directory but no files in 'inst/doc':
+  'vignette.Rmd'
+Files named as vignettes but with no recognized vignette engine:
+   'vignettes/vignette.Rmd'
+(Is a VignetteBuilder field missing?)
+* checking examples ... NONE
+* checking package vignettes ... NOTE
+Package has 'vignettes' subdirectory but apparently no vignettes.
+Perhaps the 'VignetteBuilder' information is missing from the
+DESCRIPTION file?
+* checking PDF version of manual ... WARNING
+LaTeX errors when creating PDF version.
+This typically indicates Rd problems.
+* checking PDF version of manual without index ... ERROR
+Re-running with no redirection of stdout/stderr.
+* DONE
+Status: 1 ERROR, 3 WARNINGs, 3 NOTEs

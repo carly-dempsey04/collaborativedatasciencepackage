@@ -1,0 +1,126 @@
+\nonstopmode{}
+\documentclass[a4paper]{book}
+\usepackage[times,inconsolata,hyper]{Rd}
+\usepackage{makeidx}
+\makeatletter\@ifl@t@r\fmtversion{2018/04/01}{}{\usepackage[utf8]{inputenc}}\makeatother
+% \usepackage{graphicx} % @USE GRAPHICX@
+\makeindex{}
+\begin{document}
+\chapter*{}
+\begin{center}
+{\textbf{\huge Package `collaborativedatasciencepackage'}}
+\par\bigskip{\large \today}
+\end{center}
+\ifthenelse{\boolean{Rd@use@hyper}}{\hypersetup{pdftitle = {collaborativedatasciencepackage: Analysis Tools for Coral Reef Benthic Cover Data}}}{}
+\ifthenelse{\boolean{Rd@use@hyper}}{\hypersetup{pdfauthor = {Juan Pablo Lozano Pena; Megan Do; Carly Dempsey}}}{}
+\begin{description}
+\raggedright{}
+\item[Title]\AsIs{Analysis Tools for Coral Reef Benthic Cover Data}
+\item[Version]\AsIs{0.0.0.9000}
+\item[Description]\AsIs{Provides data, analysis workflows, and visualization tools
+for examining benthic community structure in coral reef ecosystems.
+Supports functional group aggregation, ordination using Principal
+Coordinate Analysis (PCoA), and Bayesian generalized linear modelling
+to compare reef habitats and coral--macroalgae relationships.}
+\item[License]\AsIs{MIT + file LICENSE}
+\item[Encoding]\AsIs{UTF-8}
+\item[Depends]\AsIs{R (>= 4.1.0)}
+\item[Imports]\AsIs{BiodiversityR, brms, dplyr, ggdist, ggplot2, ggrepel, modelr,
+patchwork, tibble, tidybayes, vegan}
+\item[Suggests]\AsIs{knitr, rmarkdown, tidyverse}
+\item[VignetteBuilder]\AsIs{knitr}
+\item[Roxygen]\AsIs{list(markdown = TRUE)}
+\item[RoxygenNote]\AsIs{7.3.3}
+\item[LazyData]\AsIs{true}
+\item[NeedsCompilation]\AsIs{no}
+\item[Author]\AsIs{Juan Pablo Lozano Pena [aut],
+Megan Do [aut],
+Carly Dempsey [aut, cre]}
+\item[Maintainer]\AsIs{Carly Dempsey }\email{cd39227@my.utexas.edu}\AsIs{}
+\end{description}
+\Rdcontents{Contents}
+\HeaderA{collaborativedatasciencepackage-package}{collaborativedatascience-package}{collaborativedatasciencepackage.Rdash.package}
+\aliasA{collaborativedatasciencepackage}{collaborativedatasciencepackage-package}{collaborativedatasciencepackage}
+\keyword{internal}{collaborativedatasciencepackage-package}
+%
+\begin{Description}
+A package for analyzing benthic cover data from coral reef ecosystems,
+including data wrangling, visualization, ordination, and modeling tools
+developed for a collaborative data science project.
+\end{Description}
+%
+\begin{Details}
+The collaborativedatasciencepackage provides functions and datasets
+to support ecological analysis of coral reef benthic communities.
+Key features include:
+
+\begin{itemize}
+
+\item{} Data preparation and wrangling of quadrat-level observations
+\item{} Functional group aggregation of benthic categories
+\item{} Multivariate ordination (PCoA)
+\item{} Visualization utilities for benthic community data
+\item{} Modeling tools for coral–macroalgae relationships
+
+\end{itemize}
+
+\end{Details}
+%
+\begin{Section}{Package options}
+
+This package does not currently define any global options.
+\end{Section}
+%
+\begin{Author}
+Carly R. Dempsey
+\end{Author}
+\HeaderA{benthic\_plot}{Plot of Benthic PCoA Analysis}{benthic.Rul.plot}
+%
+\begin{Description}
+This function plots the PCoA run previously, adding elements that visualize factors habitat coordinates and species.
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+benthic_plot(benthic.species.scores, benthic.site.scores, benthic.hulls)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{benthic.species.scores}] A data frame of species scores
+
+\item[\code{benthic.site.scores}] A data frame of site scores
+
+\item[\code{benthic.hulls}] A data frame containing convex hull coordinates
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+A ggplot object
+\end{Value}
+\HeaderA{habitat\_effect}{Habitat Effect on Coral Cover}{habitat.Rul.effect}
+%
+\begin{Description}
+This function determines the interaction between coral cover and habitat of our Bayesian GLM
+\end{Description}
+%
+\begin{Usage}
+\begin{verbatim}
+habitat_effect(data, model)
+\end{verbatim}
+\end{Usage}
+%
+\begin{Arguments}
+\begin{ldescription}
+\item[\code{data}] data object being used
+
+\item[\code{model}] fitted Bayesian model object being used
+\end{ldescription}
+\end{Arguments}
+%
+\begin{Value}
+A ggplot object
+\end{Value}
+\printindex{}
+\end{document}
