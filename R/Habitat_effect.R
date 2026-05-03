@@ -19,7 +19,7 @@ habitat_effect <- function(data, model) {
     tidybayes::add_epred_draws(model,
                     regex = TRUE,
                     ndraws = 200, # takes 200 posterior draws of coral cover
-                    re_formula = NA) |>  # exclude random effects (i.e., transect)
+                    seed = 690) |>
 
     # plot the predicted coral values by each habitat
     ggplot2::ggplot(
